@@ -49,6 +49,20 @@ jobs:
         with:
           # Upload dist folder
           path: './dist'
+
+    # 2nd job deploy
+  deploy:
+    # Name of the job
+    name: deploy
+    # To run this job build job needs to be completed
+    needs: build
+    # Server to run a job
+    runs-on: ubuntu-latest
+    # Condition to deploy the main branch only
+    if: github.ref == 'refs/heads/main'
+
+    # Steps to perform in a job
+    steps:
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
