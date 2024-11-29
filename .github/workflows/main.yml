@@ -1,16 +1,13 @@
-# Name of a workflow
-name: Build & Deploy
+# Simple workflow for deploying static content to GitHub Pages
+name: Deploy static content to Pages
 
-# Trigger point ( So when we push in a main  branch and release branch,defined jobs will be triggered )
 on:
+  # Runs on pushes targeting the default branch
   push:
     branches: ['main']
+
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
-
-# To ignore the eslint warnings but it should not be false in production
-env:
-  CI: false
 
 # Sets the GITHUB_TOKEN permissions to allow deployment to GitHub Pages
 permissions:
@@ -23,68 +20,32 @@ concurrency:
   group: 'pages'
   cancel-in-progress: true
 
-# Required jobs to run
 jobs:
-  # 1st job build
-  build:
-    # Name of the job
-    name: build
-    # Server to run a job
+  # Single deploy job since we're just deploying
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
-
-    # Steps to perform in a job
     steps:
-      # Checkout code from repo
-      - name: Checkout repo
-        # package that runs checkout command
+      - name: Checkout
         uses: actions/checkout@v4
-
-      # Install Node
-      - name: Setup Node
-        # package that runs npm install command
+      - name: Set up Node
         uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: 'npm'
-
-      # Install dependencies
       - name: Install dependencies
         run: npm ci
-
-      # Build project
-      - name: Build Project
-        # run the command to build
+      - name: Build
         run: npm run build
-        # Project's environment variables which are stored in github secret
-        env:
-          VITE_API_KEY: ${{secrets.VITE_API_KEY}}
-
       - name: Setup Pages
         uses: actions/configure-pages@v4
-      # Upload production-ready build files ( artifacts )
-      - name: Upload production-ready build files
+      - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          name: production-files
-          path: ./dist
-
-  # 2nd job deploy
-  deploy:
-    # Name of the job
-    name: deploy
-    # To run this job build job needs to be completed
-    needs: build
-    # Server to run a job
-    runs-on: ubuntu-latest
-    # Condition to deploy the main branch only
-    if: github.ref == 'refs/heads/main'
-
-    # Steps to perform in a job
-    steps:
-      # Deploy to GitHub Pages
+          # Upload dist folder
+          path: './dist'
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
-        with:
-          github_token: ${{ secrets.REPO_TOKEN }}
-          publish_dir: ./dist
