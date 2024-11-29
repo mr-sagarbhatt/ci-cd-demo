@@ -61,7 +61,7 @@ jobs:
 
       # Upload production-ready build files ( artifacts )
       - name: Upload production-ready build files
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-artifact@master
         with:
           name: production-files
           path: ./dist
@@ -81,7 +81,7 @@ jobs:
     steps:
       # build files ( artifacts ) - same configurations as we have defined in the build job
       - name: Download artifacts
-        uses: actions/download-pages-artifact@v3
+        uses: actions/download-artifact@master
         with:
           name: production-files
           path: ./dist
